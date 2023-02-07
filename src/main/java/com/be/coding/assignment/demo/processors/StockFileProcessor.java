@@ -2,6 +2,8 @@ package com.be.coding.assignment.demo.processors;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -18,7 +20,7 @@ public class StockFileProcessor implements Processor{
     @Autowired
     public Job processJob;
 
-
+    private static final Logger log = LoggerFactory.getLogger(StockFileProcessor.class);
 
     /**
      * @param exchange
@@ -33,6 +35,7 @@ public class StockFileProcessor implements Processor{
                         "time", System.currentTimeMillis()).toJobParameters();
 
                 jobLauncher.run(processJob, jobParameters);
+                log.info("Starting Batch FileProcessor");
             } catch (Exception e) {
                 e.printStackTrace();
             }
