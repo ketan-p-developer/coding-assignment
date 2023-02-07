@@ -97,7 +97,7 @@ public class StocksApiController implements StocksApi {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             List l1 = stRepo.findByTicker(ticker);
-            return new ResponseEntity<List<Stock>>(l1, HttpStatus.ACCEPTED);
+            return new ResponseEntity<List<Stock>>(l1, HttpStatus.OK);
         }
 
         return new ResponseEntity<List<Stock>>(HttpStatus.NOT_IMPLEMENTED);

@@ -1,0 +1,188 @@
+---
+openapi: 3.0.0
+info:
+  title: Stock Assignment
+  description: This is a simple defination for Stocks Application
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+  description: Server URLs
+- url: http://localhost:8080
+paths:
+  /stocks/{ticker}:
+    get:
+      operationId: getStockDataByTicker
+      parameters:
+      - name: ticker
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: an array of data elements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/stockdataElement'
+        "400":
+          description: Invalid Stock Ticker supplied
+        "404":
+          description: Stock Ticker with this Symbol not found
+  /stocks/add/bulk/file:
+    post:
+      tags:
+      - multipart/form-data
+      summary: Bulk upload thru file
+      description: 'Function to upload bulk stock data thru file.  '
+      operationId: addStocksInBulk
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/bulk_file_body'
+      responses:
+        "200":
+          description: File sucessfully recieved.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: tracking id of the file received
+        "400":
+          description: Invalid File or unparsable file
+  /stocks/add/bulk/location:
+    post:
+      tags: []
+      summary: Bulk upload thru file from SAN location
+      description: Function to upload bulk stock data thru file which is stored in SAN storage (This is not implemented in this assignment for simplicity). This would be the performance optimised way.
+      operationId: addStocksInBulkFromSan
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/bulk_location_body'
+      responses:
+        "200":
+          description: File found at location.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: tracking id of the file received
+        "400":
+          description: Invalid File or unparsable file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+  /stocks/add/single:
+    post:
+      tags: []
+      summary: Add a single stock data set
+      description: Add a single data set to stock data application
+      operationId: addStocksSingle
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/add_single_body'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+components:
+  schemas:
+    stockdata:
+      type: object
+      properties:
+        ticker:
+          type: string
+    fileType:
+      type: string
+      enum:
+      - text
+      - sql
+      - binary
+    errorResponse:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          enum:
+          - 100
+          - 101
+        errorMessage:
+          type: string
+      description: Validation failed
+    stockdataElement:
+      type: object
+      properties:
+        quarter:
+          type: integer
+          enum:
+          - 1
+          - 2
+          - 3
+          - 4
+        stock:
+          type: string
+        date:
+          type: string
+        open:
+          type: number
+        high:
+          type: number
+        low:
+          type: number
+        close:
+          type: number
+        volume:
+          type: number
+        percent_change_price:
+          type: number
+        percent_change_volume_over_last_wk:
+          type: number
+        previous_weeks_volume:
+          type: number
+        next_weeks_open:
+          type: number
+        next_weeks_close:
+          type: number
+        percent_change_next_weeks_price:
+          type: number
+        days_to_next_dividend:
+          type: number
+        percent_return_next_dividend:
+          type: number
+    bulk_file_body:
+      type: object
+      properties:
+        fileType:
+          type: string
+        documentFile:
+          type: string
+          format: binary
+    bulk_location_body:
+      type: object
+      properties:
+        fileType:
+          $ref: '#/components/schemas/fileType'
+        documentFileURL:
+          type: string
+          format: uri
+          example: https://dropbox/myfilelocation
+    add_single_body:
+      type: object
+      properties:
+        stockDataElement:
+          $ref: '#/components/schemas/stockdataElement'
